@@ -1,195 +1,195 @@
-# Docker Compose Configuration Guide
+# Docker Compose 配置指南
 
-This document provides detailed information about the Docker Compose configurations used in this repository.
+本文档提供了此仓库中使用的 Docker Compose 配置的详细信息。
 
-## Base Configuration
+## 基础配置
 
-All server configurations use the [itzg/minecraft-server](https://github.com/itzg/docker-minecraft-server) Docker image, which provides:
+所有服务器配置都使用 [itzg/minecraft-server](https://github.com/itzg/docker-minecraft-server) Docker 镜像，该镜像提供：
 
-- Easy server setup and management
-- Support for multiple server types (Vanilla, Paper, Spigot, Forge, etc.)
-- Automatic server updates
-- Plugin and mod management
-- Comprehensive configuration options
+- 简单的服务器设置和管理
+- 支持多种服务器类型（原版、Paper、Spigot、Forge 等）
+- 自动服务器更新
+- 插件和模组管理
+- 全面的配置选项
 
-## Common Environment Variables
+## 常用环境变量
 
-### Server Identification
-- `SERVER_NAME`: Display name for the server
-- `MOTD`: Message of the day shown in server browser
+### 服务器标识
+- `SERVER_NAME`: 服务器的显示名称
+- `MOTD`: 在服务器浏览器中显示的每日消息
 
-### Connection Settings
-- `MC_PORT`: Minecraft server port (default: 25565)
-- `RCON_PORT`: Remote console port (default: 25575)
-- `ONLINE_MODE`: Enable Mojang authentication (true/false)
+### 连接设置
+- `MC_PORT`: Minecraft 服务器端口（默认：25565）
+- `RCON_PORT`: 远程控制台端口（默认：25575）
+- `ONLINE_MODE`: 启用 Mojang 身份验证（true/false）
 
-### Performance Settings
-- `MEMORY`: RAM allocation (e.g., "2G", "4G", "8G")
-- `JVM_OPTS`: Custom JVM arguments for optimization
-- `VIEW_DISTANCE`: Render distance (affects performance)
+### 性能设置
+- `MEMORY`: 内存分配（例如："2G"、"4G"、"8G"）
+- `JVM_OPTS`: 用于优化的自定义 JVM 参数
+- `VIEW_DISTANCE`: 渲染距离（影响性能）
 
-### Game Configuration
-- `DIFFICULTY`: Game difficulty (peaceful, easy, normal, hard)
-- `MODE`: Default game mode (survival, creative, adventure, spectator)
-- `MAX_PLAYERS`: Maximum concurrent players
-- `PVP`: Enable player vs player combat
-- `HARDCORE`: Enable hardcore mode (permanent death)
+### 游戏配置
+- `DIFFICULTY`: 游戏难度（peaceful、easy、normal、hard）
+- `MODE`: 默认游戏模式（survival、creative、adventure、spectator）
+- `MAX_PLAYERS`: 最大并发玩家数
+- `PVP`: 启用玩家对战
+- `HARDCORE`: 启用极限模式（永久死亡）
 
-### World Settings
-- `LEVEL`: World/level name
-- `SEED`: World generation seed
-- `GENERATE_STRUCTURES`: Generate villages, dungeons, etc.
-- `ALLOW_NETHER`: Enable the Nether dimension
-- `MAX_WORLD_SIZE`: Maximum world size in blocks
+### 世界设置
+- `LEVEL`: 世界/关卡名称
+- `SEED`: 世界生成种子
+- `GENERATE_STRUCTURES`: 生成村庄、地牢等
+- `ALLOW_NETHER`: 启用下界维度
+- `MAX_WORLD_SIZE`: 最大世界大小（以方块为单位）
 
-### Administrative
-- `WHITELIST`: Comma-separated list of allowed players
-- `OPS`: Comma-separated list of operators
-- `ENABLE_RCON`: Enable remote console
-- `RCON_PASSWORD`: Password for RCON access
+### 管理设置
+- `WHITELIST`: 允许的玩家的逗号分隔列表
+- `OPS`: 管理员的逗号分隔列表
+- `ENABLE_RCON`: 启用远程控制台
+- `RCON_PASSWORD`: RCON 访问密码
 
-## Volume Management
+## 数据卷管理
 
-### Data Persistence
-All configurations use named volumes for data persistence:
-- `mc_data`: Contains world data, plugins, configurations
-- `mc_logs`: Contains server logs (optional, for easier access)
+### 数据持久化
+所有配置都使用命名卷进行数据持久化：
+- `mc_data`: 包含世界数据、插件、配置
+- `mc_logs`: 包含服务器日志（可选，便于访问）
 
-### Benefits of Named Volumes
-- Data persists across container updates
-- Easy backup and restore
-- Shared between container restarts
-- Platform-independent storage
+### 命名卷的优势
+- 数据在容器更新时保持不变
+- 易于备份和恢复
+- 在容器重启之间共享
+- 平台无关的存储
 
-### Local Directory Mounting
-You can also mount local directories for easier access:
+### 本地目录挂载
+您也可以挂载本地目录以便于访问：
 ```yaml
 volumes:
-  - ./world:/data/world        # Mount local world directory
-  - ./plugins:/data/plugins    # Mount local plugins directory
-  - ./config:/data/config      # Mount local config directory
+  - ./world:/data/world        # 挂载本地世界目录
+  - ./plugins:/data/plugins    # 挂载本地插件目录
+  - ./config:/data/config      # 挂载本地配置目录
 ```
 
-## Network Configuration
+## 网络配置
 
-### Default Setup
-- Exposes Minecraft port (25565) and RCON port (25575)
-- Creates isolated network for security
-- Supports custom port mapping via environment variables
+### 默认设置
+- 暴露 Minecraft 端口（25565）和 RCON 端口（25575）
+- 为安全创建隔离网络
+- 通过环境变量支持自定义端口映射
 
-### Port Customization
+### 端口自定义
 ```bash
-# In .env file
-MC_PORT=25566      # Use alternative port
-RCON_PORT=25576    # Use alternative RCON port
+# 在 .env 文件中
+MC_PORT=25566      # 使用替代端口
+RCON_PORT=25576    # 使用替代 RCON 端口
 ```
 
-## Health Checks
+## 健康检查
 
-All configurations include health checks using the `mc-health` command:
-- Checks server responsiveness every 30 seconds
-- 2-minute startup grace period
-- Automatic container restart on health failures
+所有配置都包含使用 `mc-health` 命令的健康检查：
+- 每 30 秒检查服务器响应性
+- 2 分钟启动宽限期
+- 健康检查失败时自动重启容器
 
-## Security Considerations
+## 安全考虑
 
-### RCON Security
-- Always change the default RCON password
-- Consider disabling RCON if not needed
-- Limit RCON port exposure in production
+### RCON 安全
+- 始终更改默认的 RCON 密码
+- 如果不需要，考虑禁用 RCON
+- 在生产环境中限制 RCON 端口暴露
 
-### Authentication
-- Use `ONLINE_MODE=true` for Mojang authentication
-- Implement whitelist for private servers
-- Monitor operator assignments
+### 身份验证
+- 使用 `ONLINE_MODE=true` 进行 Mojang 身份验证
+- 为私人服务器实施白名单
+- 监控管理员分配
 
-### Network Security
-- Use reverse proxies for production deployments
-- Implement firewall rules
-- Consider VPN access for administration
+### 网络安全
+- 在生产部署中使用反向代理
+- 实施防火墙规则
+- 考虑 VPN 访问进行管理
 
-## Performance Optimization
+## 性能优化
 
-### Memory Allocation
-- Minimum 2GB for basic servers
-- 4-8GB recommended for modded servers
-- Monitor actual usage with `docker stats`
+### 内存分配
+- 基础服务器最少 2GB
+- 模组服务器推荐 4-8GB
+- 使用 `docker stats` 监控实际使用情况
 
-### JVM Tuning
-The configurations include optimized JVM arguments:
-- G1 garbage collector for better performance
-- Optimized for server workloads
-- Reduced pause times
+### JVM 调优
+配置包含优化的 JVM 参数：
+- G1 垃圾收集器以获得更好的性能
+- 针对服务器工作负载进行优化
+- 减少暂停时间
 
-### View Distance
-- Lower view distance = better performance
-- 10 chunks is a good balance
-- Adjust based on player count and hardware
+### 视距
+- 较低的视距 = 更好的性能
+- 10 个区块是一个很好的平衡
+- 根据玩家数量和硬件进行调整
 
-## Backup Strategies
+## 备份策略
 
-### Volume Backups
+### 数据卷备份
 ```bash
-# Backup data volume
+# 备份数据卷
 docker run --rm -v server_data:/data -v $(pwd):/backup alpine \
   tar czf /backup/backup.tar.gz -C /data .
 ```
 
-### Automated Backups
-Consider implementing automated backup scripts:
-- Schedule regular world saves
-- Rotate old backups
-- Store backups off-site
+### 自动备份
+考虑实施自动备份脚本：
+- 定期安排世界保存
+- 轮换旧备份
+- 异地存储备份
 
-## Troubleshooting
+## 故障排除
 
-### Common Issues
+### 常见问题
 
-1. **Server won't start**
-   - Check Docker logs: `docker-compose logs mc`
-   - Verify environment variables
-   - Ensure sufficient resources
+1. **服务器无法启动**
+   - 检查 Docker 日志：`docker-compose logs mc`
+   - 验证环境变量
+   - 确保有足够的资源
 
-2. **Connection issues**
-   - Verify port configuration
-   - Check firewall settings
-   - Confirm server startup completion
+2. **连接问题**
+   - 验证端口配置
+   - 检查防火墙设置
+   - 确认服务器启动完成
 
-3. **Performance problems**
-   - Monitor resource usage
-   - Adjust memory allocation
-   - Reduce view distance
-   - Check for plugin conflicts
+3. **性能问题**
+   - 监控资源使用情况
+   - 调整内存分配
+   - 降低视距
+   - 检查插件冲突
 
-### Debugging Tools
-- `docker-compose logs -f mc`: Real-time logs
-- `docker stats`: Resource usage
-- `mc-health`: Server health check
-- RCON: Remote command execution
+### 调试工具
+- `docker-compose logs -f mc`: 实时日志
+- `docker stats`: 资源使用情况
+- `mc-health`: 服务器健康检查
+- RCON: 远程命令执行
 
-## Updates and Maintenance
+## 更新和维护
 
-### Container Updates
+### 容器更新
 ```bash
-docker-compose pull    # Download latest images
-docker-compose up -d   # Restart with new images
+docker-compose pull    # 下载最新镜像
+docker-compose up -d   # 使用新镜像重启
 ```
 
-### Configuration Changes
-1. Stop the server: `docker-compose down`
-2. Edit configuration files
-3. Start the server: `docker-compose up -d`
+### 配置更改
+1. 停止服务器：`docker-compose down`
+2. 编辑配置文件
+3. 启动服务器：`docker-compose up -d`
 
-### Plugin Updates
-- Update plugins in mounted directory
-- Restart server to load changes
-- Monitor logs for compatibility issues
+### 插件更新
+- 在挂载目录中更新插件
+- 重启服务器以加载更改
+- 监控日志以查看兼容性问题
 
-## Best Practices
+## 最佳实践
 
-1. **Always use environment files** for configuration
-2. **Regular backups** of world data
-3. **Monitor resource usage** and adjust accordingly
-4. **Keep containers updated** for security
-5. **Test configuration changes** in development first
-6. **Document custom modifications** for team members
+1. **始终使用环境文件**进行配置
+2. **定期备份**世界数据
+3. **监控资源使用情况**并相应调整
+4. **保持容器更新**以确保安全
+5. **在开发环境中测试配置更改**
+6. **为团队成员记录自定义修改**

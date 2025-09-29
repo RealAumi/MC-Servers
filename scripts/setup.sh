@@ -1,21 +1,21 @@
 #!/bin/bash
 
-# Quick Setup Script for MC-Servers
-# This script helps you get started quickly with a Minecraft server
+# MC-Servers 快速设置脚本
+# 此脚本帮助您快速开始使用 Minecraft 服务器
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Colors for output
+# 输出颜色
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m' # 无颜色
 
-# Function to print colored output
+# 打印彩色输出的函数
 print_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
@@ -32,130 +32,130 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Function to check if Docker is installed and running
+# 检查 Docker 是否已安装并运行的函数
 check_docker() {
-    print_info "Checking Docker installation..."
+    print_info "检查 Docker 安装..."
     
     if ! command -v docker >/dev/null 2>&1; then
-        print_error "Docker is not installed. Please install Docker first."
-        echo "Visit: https://docs.docker.com/get-docker/"
+        print_error "Docker 未安装。请先安装 Docker。"
+        echo "访问：https://docs.docker.com/get-docker/"
         exit 1
     fi
     
     if ! docker info >/dev/null 2>&1; then
-        print_error "Docker is not running. Please start Docker first."
+        print_error "Docker 未运行。请先启动 Docker。"
         exit 1
     fi
     
-    print_success "Docker is installed and running"
+    print_success "Docker 已安装并运行"
 }
 
-# Function to check if Docker Compose is available
+# 检查 Docker Compose 是否可用的函数
 check_docker_compose() {
-    print_info "Checking Docker Compose..."
+    print_info "检查 Docker Compose..."
     
     if docker compose version >/dev/null 2>&1; then
-        print_success "Docker Compose (v2) is available"
+        print_success "Docker Compose (v2) 可用"
     elif command -v docker-compose >/dev/null 2>&1; then
-        print_success "Docker Compose (v1) is available"
+        print_success "Docker Compose (v1) 可用"
     else
-        print_error "Docker Compose is not available. Please install Docker Compose."
-        echo "Visit: https://docs.docker.com/compose/install/"
+        print_error "Docker Compose 不可用。请安装 Docker Compose。"
+        echo "访问：https://docs.docker.com/compose/install/"
         exit 1
     fi
 }
 
-# Function to setup Paper server
+# 设置 Paper 服务器的函数
 setup_paper() {
     local server_path="$PROJECT_ROOT/paper-latest"
     
-    print_info "Setting up Paper server..."
+    print_info "设置 Paper 服务器..."
     
     cd "$server_path"
     
     if [[ -f ".env" ]]; then
-        print_warning ".env file already exists. Skipping copy from template."
+        print_warning ".env 文件已存在。跳过从模板复制。"
     else
         cp ".env.example" ".env"
-        print_success "Created .env file from template"
+        print_success "从模板创建 .env 文件"
     fi
     
-    print_info "Please edit the .env file to customize your server settings:"
-    echo "  - Change RCON_PASSWORD from the default"
-    echo "  - Adjust MEMORY allocation based on your system"
-    echo "  - Set SERVER_NAME and MOTD"
-    echo "  - Configure player limits and game settings"
+    print_info "请编辑 .env 文件以自定义您的服务器设置："
+    echo "  - 更改默认的 RCON_PASSWORD"
+    echo "  - 根据您的系统调整 MEMORY 分配"
+    echo "  - 设置 SERVER_NAME 和 MOTD"
+    echo "  - 配置玩家限制和游戏设置"
     
-    read -p "Would you like to edit the .env file now? (y/n): " -n 1 -r
+    read -p "您现在想要编辑 .env 文件吗？(y/n): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         ${EDITOR:-nano} ".env"
     fi
     
-    print_info "Starting Paper server..."
+    print_info "启动 Paper 服务器..."
     docker-compose up -d
     
-    print_success "Paper server is starting up!"
-    print_info "Use the following commands to manage your server:"
-    echo "  - View logs: cd $server_path && docker-compose logs -f mc"
-    echo "  - Stop server: cd $server_path && docker-compose down"
-    echo "  - Restart server: cd $server_path && docker-compose restart mc"
-    echo "  - Or use the management script: $PROJECT_ROOT/scripts/manage.sh"
+    print_success "Paper 服务器正在启动！"
+    print_info "使用以下命令来管理您的服务器："
+    echo "  - 查看日志：cd $server_path && docker-compose logs -f mc"
+    echo "  - 停止服务器：cd $server_path && docker-compose down"
+    echo "  - 重启服务器：cd $server_path && docker-compose restart mc"
+    echo "  - 或使用管理脚本：$PROJECT_ROOT/scripts/manage.sh"
 }
 
-# Function to show server list
+# 显示服务器列表的函数
 show_servers() {
-    print_info "Available server configurations:"
-    echo "  1. paper-latest - Latest Paper server (recommended)"
+    print_info "可用的服务器配置："
+    echo "  1. paper-latest - 最新 Paper 服务器（推荐）"
     echo ""
 }
 
-# Function to show main menu
+# 显示主菜单的函数
 show_menu() {
-    echo "MC-Servers Quick Setup"
-    echo "======================"
+    echo "MC-Servers 快速设置"
+    echo "==================="
     echo ""
     show_servers
-    echo "What would you like to do?"
-    echo "  1. Setup Paper server (latest)"
-    echo "  2. Check system requirements"
-    echo "  3. Exit"
+    echo "您想要做什么？"
+    echo "  1. 设置 Paper 服务器（最新版）"
+    echo "  2. 检查系统要求"
+    echo "  3. 退出"
     echo ""
 }
 
-# Function to check system requirements
+# 检查系统要求的函数
 check_requirements() {
-    print_info "Checking system requirements..."
+    print_info "检查系统要求..."
     
-    # Check available memory
+    # 检查可用内存
     if command -v free >/dev/null 2>&1; then
         local total_mem=$(free -g | awk '/^Mem:/{print $2}')
-        print_info "Available RAM: ${total_mem}GB"
+        print_info "可用内存：${total_mem}GB"
         
         if [[ $total_mem -lt 2 ]]; then
-            print_warning "Less than 2GB RAM available. Minecraft servers need at least 2GB."
-            print_warning "Consider reducing MEMORY setting in .env file or upgrading your system."
+            print_warning "可用内存少于 2GB。Minecraft 服务器至少需要 2GB。"
+            print_warning "考虑在 .env 文件中减少 MEMORY 设置或升级您的系统。"
         else
-            print_success "Sufficient RAM available for Minecraft server"
+            print_success "Minecraft 服务器有足够的内存可用"
         fi
     fi
     
-    # Check disk space
+    # 检查磁盘空间
     local available_space=$(df -h . | awk 'NR==2 {print $4}')
-    print_info "Available disk space: $available_space"
+    print_info "可用磁盘空间：$available_space"
     
-    # Check Docker
+    # 检查 Docker
     check_docker
     check_docker_compose
     
-    print_success "System requirements check completed"
+    print_success "系统要求检查完成"
 }
 
-# Main script
+# 主脚本
 main() {
     while true; do
         show_menu
-        read -p "Enter your choice (1-3): " choice
+        read -p "输入您的选择 (1-3): " choice
         
         case $choice in
             1)
@@ -167,18 +167,18 @@ main() {
             2)
                 check_requirements
                 echo ""
-                read -p "Press Enter to continue..."
+                read -p "按 Enter 继续..."
                 ;;
             3)
-                print_info "Goodbye!"
+                print_info "再见！"
                 exit 0
                 ;;
             *)
-                print_error "Invalid choice. Please enter 1, 2, or 3."
+                print_error "无效选择。请输入 1、2 或 3。"
                 ;;
         esac
     done
 }
 
-# Run main function
+# 运行主函数
 main
