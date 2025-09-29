@@ -1,53 +1,53 @@
 # MC-Servers
 
-This repository hosts Minecraft server-related scripts and Docker configurations, primarily maintaining Docker Compose setups for the [itzg/docker-minecraft-server](https://github.com/itzg/docker-minecraft-server) image.
+此仓库托管 Minecraft 服务器相关的脚本和 Docker 配置，主要维护基于 [itzg/docker-minecraft-server](https://github.com/itzg/docker-minecraft-server) 镜像的 Docker Compose 设置。
 
-## Features
+## 功能特性
 
-- 🐳 Docker Compose configurations for various Minecraft server types
-- 📦 Pre-configured Paper server setup (latest version)
-- 🛠️ Management scripts for easy server deployment
-- 📋 Environment-based configuration for different setups
+- 🐳 适用于各种 Minecraft 服务器类型的 Docker Compose 配置
+- 📦 预配置的 Paper 服务器设置（最新版本）
+- 🛠️ 便于服务器部署的管理脚本
+- 📋 基于环境变量的不同设置配置
 
-## Server Configurations
+## 服务器配置
 
-### Paper Server (Latest)
-A modern Paper server setup with the latest version, optimized for performance and plugin compatibility.
+### Paper 服务器（最新版）
+一个现代化的 Paper 服务器设置，使用最新版本，针对性能和插件兼容性进行了优化。
 
-**Location**: `paper-latest/`
+**位置**: `paper-latest/`
 
-## Quick Start
+## 快速开始
 
-1. Choose a server configuration directory
-2. Copy the example environment file: `cp .env.example .env`
-3. Edit the `.env` file with your preferred settings
-4. Start the server: `docker-compose up -d`
+1. 选择一个服务器配置目录
+2. 复制示例环境文件：`cp .env.example .env`
+3. 使用你的首选设置编辑 `.env` 文件
+4. 启动服务器：`docker-compose up -d`
 
-## Directory Structure
+## 目录结构
 
 ```
 .
-├── paper-latest/           # Latest Paper server configuration
+├── paper-latest/           # 最新 Paper 服务器配置
 │   ├── docker-compose.yml
 │   ├── .env.example
 │   └── README.md
-├── scripts/               # Management and utility scripts
-└── docs/                 # Additional documentation
+├── scripts/               # 管理和实用程序脚本
+└── docs/                 # 附加文档
 ```
 
-## Requirements
+## 系统要求
 
 - Docker
 - Docker Compose
-- At least 2GB RAM for the Minecraft server
+- 至少 2GB 内存用于 Minecraft 服务器
 
-## Configuration
+## 配置说明
 
-Each server configuration includes:
-- Docker Compose file with optimized settings
-- Environment file template for easy customization
-- Server-specific documentation
+每个服务器配置包括：
+- 带有优化设置的 Docker Compose 文件
+- 便于自定义的环境文件模板
+- 服务器特定的文档
 
-## Contributing
+## 贡献
 
-Feel free to contribute additional server configurations, improvements to existing setups, or useful management scripts.
+欢迎贡献额外的服务器配置、对现有设置的改进或有用的管理脚本。

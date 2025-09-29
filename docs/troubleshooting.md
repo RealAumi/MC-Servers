@@ -1,363 +1,363 @@
-# Troubleshooting Guide
+# 故障排除指南
 
-This guide helps you diagnose and fix common issues with your Minecraft server setup.
+本指南帮助您诊断和修复 Minecraft 服务器设置中的常见问题。
 
-## Quick Diagnosis
+## 快速诊断
 
-### Check Server Status
+### 检查服务器状态
 ```bash
-# View running containers
+# 查看运行中的容器
 docker-compose ps
 
-# Check server health
+# 检查服务器健康状态
 docker-compose exec mc mc-health
 
-# View real-time logs
+# 查看实时日志
 docker-compose logs -f mc
 ```
 
-### Common Log Patterns
-- `Server thread/INFO]: Done (X.XXXs)!` - Server started successfully
-- `EULA=TRUE` - EULA accepted
-- `Exception` or `Error` - Issues that need attention
+### 常见日志模式
+- `Server thread/INFO]: Done (X.XXXs)!` - 服务器启动成功
+- `EULA=TRUE` - EULA 已接受
+- `Exception` 或 `Error` - 需要注意的问题
 
-## Connection Issues
+## 连接问题
 
-### Can't Connect to Server
+### 无法连接到服务器
 
-**Symptoms**: Connection timeout, "Can't reach server"
+**症状**: 连接超时，"无法连接到服务器"
 
-**Diagnosis**:
+**诊断**:
 ```bash
-# Check if container is running
+# 检查容器是否运行
 docker-compose ps
 
-# Check port binding
+# 检查端口绑定
 docker port $(docker-compose ps -q mc)
 
-# Test port connectivity (from another machine)
-telnet <server-ip> <port>
+# 测试端口连接（从另一台机器）
+telnet <服务器IP> <端口>
 ```
 
-**Solutions**:
-1. **Verify server is running**:
+**解决方案**:
+1. **验证服务器正在运行**:
    ```bash
    docker-compose logs mc | grep "Done"
    ```
 
-2. **Check port configuration**:
-   - Ensure `MC_PORT` in `.env` matches your client
-   - Verify firewall allows the port
-   - Check router port forwarding if hosting from home
+2. **检查端口配置**:
+   - 确保 `.env` 中的 `MC_PORT` 与您的客户端匹配
+   - 验证防火墙允许该端口
+   - 如果从家中托管，检查路由器端口转发
 
-3. **Verify network settings**:
+3. **验证网络设置**:
    ```bash
-   # Check if port is bound correctly
+   # 检查端口是否正确绑定
    docker-compose ps
    ```
 
-### Authentication Issues
+### 身份验证问题
 
-**Symptoms**: "Failed to verify username", "Authentication servers are down"
+**症状**: "验证用户名失败"，"身份验证服务器离线"
 
-**Solutions**:
-1. **For offline servers**: Set `ONLINE_MODE=false` in `.env`
-2. **For online servers**: 
-   - Verify internet connectivity
-   - Check Mojang service status
-   - Ensure correct username/password
+**解决方案**:
+1. **离线服务器**: 在 `.env` 中设置 `ONLINE_MODE=false`
+2. **在线服务器**: 
+   - 验证互联网连接
+   - 检查 Mojang 服务状态
+   - 确保用户名/密码正确
 
-## Performance Issues
+## 性能问题
 
-### Server Lag
+### 服务器延迟
 
-**Symptoms**: Slow block updates, delayed chat, high TPS
+**症状**: 方块更新缓慢，聊天延迟，高 TPS
 
-**Diagnosis**:
+**诊断**:
 ```bash
-# Check resource usage
+# 检查资源使用情况
 docker stats
 
-# Check server TPS (in-game)
+# 检查服务器 TPS（游戏内）
 /tps
 
-# Check memory usage
+# 检查内存使用情况
 docker-compose exec mc free -h
 ```
 
-**Solutions**:
-1. **Increase memory allocation**:
+**解决方案**:
+1. **增加内存分配**:
    ```bash
-   # In .env file
-   MEMORY=4G  # Increase from 2G
+   # 在 .env 文件中
+   MEMORY=4G  # 从 2G 增加
    ```
 
-2. **Optimize JVM settings** (already optimized in our configs)
+2. **优化 JVM 设置**（我们的配置中已优化）
 
-3. **Reduce view distance**:
+3. **降低视距**:
    ```bash
-   # In .env file
-   VIEW_DISTANCE=8  # Reduce from 10
+   # 在 .env 文件中
+   VIEW_DISTANCE=8  # 从 10 降低
    ```
 
-4. **Check for resource-heavy plugins**
+4. **检查资源密集型插件**
 
-### High Memory Usage
+### 高内存使用
 
-**Symptoms**: Container using excessive RAM, OOM kills
+**症状**: 容器使用过多 RAM，OOM 杀死
 
-**Solutions**:
-1. **Monitor actual usage**:
+**解决方案**:
+1. **监控实际使用情况**:
    ```bash
    docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}"
    ```
 
-2. **Adjust heap size**:
+2. **调整堆大小**:
    ```bash
-   # Don't exceed 80% of container memory
-   MEMORY=4G  # For 5GB container limit
+   # 不要超过容器内存的 80%
+   MEMORY=4G  # 对于 5GB 容器限制
    ```
 
-3. **Enable G1GC** (already enabled in our configs)
+3. **启用 G1GC**（我们的配置中已启用）
 
-## Startup Issues
+## 启动问题
 
-### Server Won't Start
+### 服务器无法启动
 
-**Symptoms**: Container exits immediately, restart loops
+**症状**: 容器立即退出，重启循环
 
-**Diagnosis**:
+**诊断**:
 ```bash
-# Check exit code and logs
+# 检查退出代码和日志
 docker-compose logs mc
 
-# Check environment variables
+# 检查环境变量
 docker-compose config
 ```
 
-**Common Causes & Solutions**:
+**常见原因和解决方案**:
 
-1. **EULA not accepted**:
+1. **EULA 未接受**:
    ```bash
-   # Ensure in .env or docker-compose.yml
+   # 确保在 .env 或 docker-compose.yml 中
    EULA=TRUE
    ```
 
-2. **Invalid environment variables**:
+2. **无效的环境变量**:
    ```bash
-   # Check for typos in .env
-   # Validate enum values (DIFFICULTY, MODE, etc.)
+   # 检查 .env 中的拼写错误
+   # 验证枚举值（DIFFICULTY、MODE 等）
    ```
 
-3. **Insufficient permissions**:
+3. **权限不足**:
    ```bash
-   # Check volume permissions
+   # 检查卷权限
    docker-compose down
    docker volume rm $(docker-compose ps -q)_data
    docker-compose up -d
    ```
 
-4. **Port already in use**:
+4. **端口已被使用**:
    ```bash
-   # Check what's using the port
+   # 检查什么在使用端口
    sudo netstat -tlnp | grep :25565
    
-   # Use different port
+   # 使用不同端口
    MC_PORT=25566
    ```
 
-### Container Keeps Restarting
+### 容器持续重启
 
-**Symptoms**: Container restarts every few minutes
+**症状**: 容器每隔几分钟重启
 
-**Diagnosis**:
+**诊断**:
 ```bash
-# Check restart count
+# 检查重启次数
 docker-compose ps
 
-# Check health check status
+# 检查健康检查状态
 docker inspect $(docker-compose ps -q mc) | grep Health -A 20
 ```
 
-**Solutions**:
-1. **Check health check configuration**
-2. **Increase startup timeout**
-3. **Fix underlying startup issues**
+**解决方案**:
+1. **检查健康检查配置**
+2. **增加启动超时**
+3. **修复潜在的启动问题**
 
-## Data Issues
+## 数据问题
 
-### Lost World Data
+### 丢失世界数据
 
-**Symptoms**: World reset, progress lost
+**症状**: 世界重置，进度丢失
 
-**Prevention**:
+**预防**:
 ```bash
-# Regular backups
+# 定期备份
 ./scripts/manage.sh backup paper-latest
 
-# Verify volume persistence
+# 验证卷持久化
 docker volume ls | grep data
 ```
 
-**Recovery**:
-1. **Check if data volume exists**:
+**恢复**:
+1. **检查数据卷是否存在**:
    ```bash
    docker volume ls
    ```
 
-2. **Restore from backup**:
+2. **从备份恢复**:
    ```bash
-   # Stop server
+   # 停止服务器
    docker-compose down
    
-   # Restore data
+   # 恢复数据
    docker run --rm -v server_data:/data -v $(pwd):/backup alpine \
      tar xzf /backup/backup.tar.gz -C /data
    
-   # Start server
+   # 启动服务器
    docker-compose up -d
    ```
 
-### Configuration Not Applied
+### 配置未生效
 
-**Symptoms**: Settings in `.env` not taking effect
+**症状**: `.env` 中的设置未生效
 
-**Solutions**:
-1. **Restart container after changes**:
+**解决方案**:
+1. **更改后重启容器**:
    ```bash
    docker-compose down
    docker-compose up -d
    ```
 
-2. **Check environment variable syntax**:
+2. **检查环境变量语法**:
    ```bash
-   # No spaces around =
-   MEMORY=4G  # Correct
-   MEMORY = 4G  # Wrong
+   # = 周围不要有空格
+   MEMORY=4G  # 正确
+   MEMORY = 4G  # 错误
    ```
 
-3. **Verify environment is loaded**:
+3. **验证环境已加载**:
    ```bash
    docker-compose config
    ```
 
-## Plugin Issues
+## 插件问题
 
-### Plugins Not Loading
+### 插件未加载
 
-**Symptoms**: Features missing, plugin commands not working
+**症状**: 功能缺失，插件命令不工作
 
-**Solutions**:
-1. **Check plugin directory mounting**:
+**解决方案**:
+1. **检查插件目录挂载**:
    ```yaml
-   # In docker-compose.yml
+   # 在 docker-compose.yml 中
    volumes:
      - ./plugins:/data/plugins
    ```
 
-2. **Verify plugin compatibility**:
-   - Check Paper version compatibility
-   - Look for dependency requirements
+2. **验证插件兼容性**:
+   - 检查 Paper 版本兼容性
+   - 查看依赖要求
 
-3. **Check plugin logs**:
+3. **检查插件日志**:
    ```bash
    docker-compose logs mc | grep -i plugin
    ```
 
-### Plugin Conflicts
+### 插件冲突
 
-**Symptoms**: Errors in logs, unexpected behavior
+**症状**: 日志中出现错误，异常行为
 
-**Solutions**:
-1. **Disable plugins one by one**
-2. **Check plugin documentation** for known conflicts
-3. **Update plugins** to latest versions
+**解决方案**:
+1. **逐一禁用插件**
+2. **检查插件文档**了解已知冲突
+3. **更新插件**到最新版本
 
-## Network Issues
+## 网络问题
 
-### RCON Not Working
+### RCON 不工作
 
-**Symptoms**: Can't connect with RCON client
+**症状**: 无法使用 RCON 客户端连接
 
-**Solutions**:
-1. **Verify RCON is enabled**:
+**解决方案**:
+1. **验证 RCON 已启用**:
    ```bash
    ENABLE_RCON=true
    ```
 
-2. **Check RCON port**:
+2. **检查 RCON 端口**:
    ```bash
    RCON_PORT=25575
    ```
 
-3. **Test RCON connection**:
+3. **测试 RCON 连接**:
    ```bash
    docker-compose exec mc rcon-cli
    ```
 
-### Docker Network Issues
+### Docker 网络问题
 
-**Symptoms**: Container can't reach external resources
+**症状**: 容器无法访问外部资源
 
-**Solutions**:
-1. **Check Docker network**:
+**解决方案**:
+1. **检查 Docker 网络**:
    ```bash
    docker network ls
    docker network inspect $(docker-compose ps -q)_default
    ```
 
-2. **Restart Docker service**:
+2. **重启 Docker 服务**:
    ```bash
    sudo systemctl restart docker
    ```
 
-## Resource Monitoring
+## 资源监控
 
-### System Resource Check
+### 系统资源检查
 ```bash
-# CPU and memory usage
+# CPU 和内存使用情况
 htop
 
-# Disk usage
+# 磁盘使用情况
 df -h
 
-# Docker resource usage
+# Docker 资源使用情况
 docker system df
 ```
 
-### Server-Specific Monitoring
+### 服务器特定监控
 ```bash
-# Minecraft-specific metrics
+# Minecraft 特定指标
 docker-compose exec mc cat /data/logs/latest.log | grep TPS
 
-# Java heap usage
+# Java 堆使用情况
 docker-compose exec mc jstat -gc 1
 ```
 
-## Getting Help
+## 获取帮助
 
-### Information to Collect
-When seeking help, collect:
-1. **Docker Compose logs**: `docker-compose logs mc`
-2. **System information**: `docker info`
-3. **Configuration**: `docker-compose config`
-4. **Resource usage**: `docker stats`
+### 需要收集的信息
+寻求帮助时，请收集：
+1. **Docker Compose 日志**: `docker-compose logs mc`
+2. **系统信息**: `docker info`
+3. **配置**: `docker-compose config`
+4. **资源使用情况**: `docker stats`
 
-### Useful Commands for Support
+### 支持有用的命令
 ```bash
-# Generate diagnostic report
-echo "=== Docker Info ===" > debug.txt
+# 生成诊断报告
+echo "=== Docker 信息 ===" > debug.txt
 docker info >> debug.txt
-echo "=== Container Status ===" >> debug.txt
+echo "=== 容器状态 ===" >> debug.txt
 docker-compose ps >> debug.txt
-echo "=== Container Logs ===" >> debug.txt
+echo "=== 容器日志 ===" >> debug.txt
 docker-compose logs --tail=100 mc >> debug.txt
-echo "=== Environment ===" >> debug.txt
+echo "=== 环境 ===" >> debug.txt
 docker-compose config >> debug.txt
 ```
 
-### Community Resources
-- [itzg/docker-minecraft-server Documentation](https://github.com/itzg/docker-minecraft-server)
-- [Paper MC Documentation](https://docs.papermc.io/)
-- [Docker Documentation](https://docs.docker.com/)
-- [Minecraft Server Administration Guides](https://minecraft.wiki/w/Tutorials/Setting_up_a_server)
+### 社区资源
+- [itzg/docker-minecraft-server 文档](https://github.com/itzg/docker-minecraft-server)
+- [Paper MC 文档](https://docs.papermc.io/)
+- [Docker 文档](https://docs.docker.com/)
+- [Minecraft 服务器管理指南](https://minecraft.wiki/w/Tutorials/Setting_up_a_server)

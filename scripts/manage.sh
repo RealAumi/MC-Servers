@@ -1,40 +1,40 @@
 #!/bin/bash
 
-# MC-Servers Management Script
-# Provides common operations for Minecraft server management
+# MC-Servers 管理脚本
+# 为 Minecraft 服务器管理提供常用操作
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Colors for output
+# 输出颜色
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m' # 无颜色
 
-# Function to print colored output
+# 打印彩色输出的函数
 print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    echo -e "${BLUE}[信息]${NC} $1"
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo -e "${GREEN}[成功]${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}[警告]${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}[错误]${NC} $1"
 }
 
-# Function to list available server configurations
+# 列出可用服务器配置的函数
 list_servers() {
-    print_info "Available server configurations:"
+    print_info "可用的服务器配置："
     for dir in "$PROJECT_ROOT"/*/; do
         if [[ -f "$dir/docker-compose.yml" ]]; then
             basename="$(basename "$dir")"
@@ -43,111 +43,111 @@ list_servers() {
     done
 }
 
-# Function to validate server configuration exists
+# 验证服务器配置是否存在的函数
 validate_server() {
     local server="$1"
     local server_path="$PROJECT_ROOT/$server"
     
     if [[ ! -d "$server_path" ]]; then
-        print_error "Server configuration '$server' not found"
+        print_error "服务器配置 '$server' 未找到"
         list_servers
         exit 1
     fi
     
     if [[ ! -f "$server_path/docker-compose.yml" ]]; then
-        print_error "No docker-compose.yml found in '$server'"
+        print_error "在 '$server' 中未找到 docker-compose.yml"
         exit 1
     fi
 }
 
-# Function to start a server
+# 启动服务器的函数
 start_server() {
     local server="$1"
     validate_server "$server"
     
     local server_path="$PROJECT_ROOT/$server"
-    print_info "Starting server: $server"
+    print_info "启动服务器：$server"
     
     cd "$server_path"
     
-    # Check if .env exists, if not copy from example
+    # 检查 .env 是否存在，如果不存在则从示例复制
     if [[ ! -f ".env" && -f ".env.example" ]]; then
-        print_warning ".env file not found, copying from .env.example"
+        print_warning "未找到 .env 文件，从 .env.example 复制"
         cp ".env.example" ".env"
-        print_warning "Please edit .env file with your settings before starting the server"
+        print_warning "请在启动服务器前编辑 .env 文件以设置您的配置"
         exit 1
     fi
     
     docker-compose up -d
-    print_success "Server '$server' started successfully"
-    print_info "Use 'docker-compose logs -f mc' to view logs"
+    print_success "服务器 '$server' 启动成功"
+    print_info "使用 'docker-compose logs -f mc' 查看日志"
 }
 
-# Function to stop a server
+# 停止服务器的函数
 stop_server() {
     local server="$1"
     validate_server "$server"
     
     local server_path="$PROJECT_ROOT/$server"
-    print_info "Stopping server: $server"
+    print_info "停止服务器：$server"
     
     cd "$server_path"
     docker-compose down
-    print_success "Server '$server' stopped successfully"
+    print_success "服务器 '$server' 停止成功"
 }
 
-# Function to restart a server
+# 重启服务器的函数
 restart_server() {
     local server="$1"
     validate_server "$server"
     
     local server_path="$PROJECT_ROOT/$server"
-    print_info "Restarting server: $server"
+    print_info "重启服务器：$server"
     
     cd "$server_path"
     docker-compose restart
-    print_success "Server '$server' restarted successfully"
+    print_success "服务器 '$server' 重启成功"
 }
 
-# Function to view server logs
+# 查看服务器日志的函数
 logs_server() {
     local server="$1"
     validate_server "$server"
     
     local server_path="$PROJECT_ROOT/$server"
-    print_info "Showing logs for server: $server"
+    print_info "显示服务器日志：$server"
     
     cd "$server_path"
     docker-compose logs -f mc
 }
 
-# Function to show server status
+# 显示服务器状态的函数
 status_server() {
     local server="$1"
     validate_server "$server"
     
     local server_path="$PROJECT_ROOT/$server"
-    print_info "Status for server: $server"
+    print_info "服务器状态：$server"
     
     cd "$server_path"
     docker-compose ps
 }
 
-# Function to update server
+# 更新服务器的函数
 update_server() {
     local server="$1"
     validate_server "$server"
     
     local server_path="$PROJECT_ROOT/$server"
-    print_info "Updating server: $server"
+    print_info "更新服务器：$server"
     
     cd "$server_path"
     docker-compose pull
     docker-compose up -d
-    print_success "Server '$server' updated successfully"
+    print_success "服务器 '$server' 更新成功"
 }
 
-# Function to backup server data
+# 备份服务器数据的函数
 backup_server() {
     local server="$1"
     validate_server "$server"
@@ -157,59 +157,59 @@ backup_server() {
     local timestamp=$(date +"%Y%m%d_%H%M%S")
     local backup_file="$backup_dir/${server}_backup_${timestamp}.tar.gz"
     
-    print_info "Creating backup for server: $server"
+    print_info "为服务器创建备份：$server"
     
     mkdir -p "$backup_dir"
     
     cd "$server_path"
     
-    # Stop server for consistent backup
-    print_info "Stopping server for backup..."
+    # 停止服务器以确保备份一致性
+    print_info "停止服务器进行备份..."
     docker-compose stop mc
     
-    # Create backup
+    # 创建备份
     docker run --rm -v "${server}_data:/data" -v "$backup_dir:/backup" alpine:latest \
         tar czf "/backup/$(basename "$backup_file")" -C /data .
     
-    # Restart server
-    print_info "Restarting server..."
+    # 重启服务器
+    print_info "重启服务器..."
     docker-compose start mc
     
-    print_success "Backup created: $backup_file"
+    print_success "备份已创建：$backup_file"
 }
 
-# Function to show help
+# 显示帮助的函数
 show_help() {
-    echo "MC-Servers Management Script"
+    echo "MC-Servers 管理脚本"
     echo ""
-    echo "Usage: $0 <command> [server_name]"
+    echo "用法：$0 <命令> [服务器名]"
     echo ""
-    echo "Commands:"
-    echo "  list                    List available server configurations"
-    echo "  start <server>         Start a server"
-    echo "  stop <server>          Stop a server"
-    echo "  restart <server>       Restart a server"
-    echo "  logs <server>          View server logs"
-    echo "  status <server>        Show server status"
-    echo "  update <server>        Update and restart server"
-    echo "  backup <server>        Create a backup of server data"
-    echo "  help                   Show this help message"
+    echo "命令："
+    echo "  list                    列出可用的服务器配置"
+    echo "  start <服务器>         启动服务器"
+    echo "  stop <服务器>          停止服务器"
+    echo "  restart <服务器>       重启服务器"
+    echo "  logs <服务器>          查看服务器日志"
+    echo "  status <服务器>        显示服务器状态"
+    echo "  update <服务器>        更新并重启服务器"
+    echo "  backup <服务器>        创建服务器数据备份"
+    echo "  help                   显示此帮助信息"
     echo ""
-    echo "Examples:"
+    echo "示例："
     echo "  $0 list"
     echo "  $0 start paper-latest"
     echo "  $0 logs paper-latest"
     echo "  $0 backup paper-latest"
 }
 
-# Main script logic
+# 主脚本逻辑
 case "${1:-}" in
     "list")
         list_servers
         ;;
     "start")
         if [[ -z "${2:-}" ]]; then
-            print_error "Server name required"
+            print_error "需要服务器名称"
             show_help
             exit 1
         fi
@@ -217,7 +217,7 @@ case "${1:-}" in
         ;;
     "stop")
         if [[ -z "${2:-}" ]]; then
-            print_error "Server name required"
+            print_error "需要服务器名称"
             show_help
             exit 1
         fi
@@ -225,7 +225,7 @@ case "${1:-}" in
         ;;
     "restart")
         if [[ -z "${2:-}" ]]; then
-            print_error "Server name required"
+            print_error "需要服务器名称"
             show_help
             exit 1
         fi
@@ -233,7 +233,7 @@ case "${1:-}" in
         ;;
     "logs")
         if [[ -z "${2:-}" ]]; then
-            print_error "Server name required"
+            print_error "需要服务器名称"
             show_help
             exit 1
         fi
@@ -241,7 +241,7 @@ case "${1:-}" in
         ;;
     "status")
         if [[ -z "${2:-}" ]]; then
-            print_error "Server name required"
+            print_error "需要服务器名称"
             show_help
             exit 1
         fi
@@ -249,7 +249,7 @@ case "${1:-}" in
         ;;
     "update")
         if [[ -z "${2:-}" ]]; then
-            print_error "Server name required"
+            print_error "需要服务器名称"
             show_help
             exit 1
         fi
@@ -257,7 +257,7 @@ case "${1:-}" in
         ;;
     "backup")
         if [[ -z "${2:-}" ]]; then
-            print_error "Server name required"
+            print_error "需要服务器名称"
             show_help
             exit 1
         fi
@@ -267,7 +267,7 @@ case "${1:-}" in
         show_help
         ;;
     *)
-        print_error "Unknown command: ${1:-}"
+        print_error "未知命令：${1:-}"
         show_help
         exit 1
         ;;
