@@ -17,19 +17,19 @@ NC='\033[0m' # 无颜色
 
 # 打印彩色输出的函数
 print_info() {
-    echo -e "${BLUE}[信息]${NC} $1"
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 print_success() {
-    echo -e "${GREEN}[成功]${NC} $1"
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[警告]${NC} $1"
+    echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}[错误]${NC} $1"
+    echo -e "${RED}[ERROR]${NC} $1"
 }
 
 # 检查 Docker 是否已安装并运行的函数
