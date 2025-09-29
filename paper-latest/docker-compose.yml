@@ -1,0 +1,93 @@
+services:
+  mc:
+    image: itzg/minecraft-server:latest
+    container_name: mc-paper-latest
+    restart: unless-stopped
+    ports:
+      - "${MC_PORT:-25565}:25565"
+      - "${RCON_PORT:-25575}:25575"
+    environment:
+      # Server Type and Version
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "LATEST"
+      
+      # Server Configuration
+      SERVER_NAME: "${SERVER_NAME:-Paper Minecraft Server}"
+      MOTD: "${MOTD:-A Paper Minecraft Server powered by Docker}"
+      MAX_PLAYERS: "${MAX_PLAYERS:-20}"
+      DIFFICULTY: "${DIFFICULTY:-normal}"
+      MODE: "${MODE:-survival}"
+      LEVEL: "${LEVEL:-world}"
+      SEED: "${SEED:-}"
+      
+      # Performance Settings
+      MEMORY: "${MEMORY:-2G}"
+      JVM_OPTS: "${JVM_OPTS:--XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:MaxGCPauseMillis=100 -XX:+DisableExplicitGC -XX:TargetSurvivorRatio=90 -XX:G1NewSizePercent=50 -XX:G1MaxNewSizePercent=80 -XX:G1MixedGCLiveThresholdPercent=35 -XX:+AlwaysPreTouch -XX:+ParallelRefProcEnabled}"
+      
+      # Online Mode
+      ONLINE_MODE: "${ONLINE_MODE:-true}"
+      
+      # RCON Configuration
+      ENABLE_RCON: "${ENABLE_RCON:-true}"
+      RCON_PASSWORD: "${RCON_PASSWORD:-changeme}"
+      
+      # Whitelist
+      WHITELIST: "${WHITELIST:-}"
+      OPS: "${OPS:-}"
+      
+      # World Configuration
+      ALLOW_NETHER: "${ALLOW_NETHER:-true}"
+      ANNOUNCE_PLAYER_ACHIEVEMENTS: "${ANNOUNCE_PLAYER_ACHIEVEMENTS:-true}"
+      ENABLE_COMMAND_BLOCK: "${ENABLE_COMMAND_BLOCK:-false}"
+      FORCE_GAMEMODE: "${FORCE_GAMEMODE:-false}"
+      GENERATE_STRUCTURES: "${GENERATE_STRUCTURES:-true}"
+      HARDCORE: "${HARDCORE:-false}"
+      MAX_BUILD_HEIGHT: "${MAX_BUILD_HEIGHT:-256}"
+      MAX_WORLD_SIZE: "${MAX_WORLD_SIZE:-29999984}"
+      PVP: "${PVP:-true}"
+      SPAWN_ANIMALS: "${SPAWN_ANIMALS:-true}"
+      SPAWN_MONSTERS: "${SPAWN_MONSTERS:-true}"
+      SPAWN_NPCS: "${SPAWN_NPCS:-true}"
+      VIEW_DISTANCE: "${VIEW_DISTANCE:-10}"
+      
+      # Paper Specific Settings
+      PAPER_CHANNEL: "${PAPER_CHANNEL:-default}"
+      
+      # Plugin Management
+      REMOVE_OLD_MODS: "${REMOVE_OLD_MODS:-false}"
+      
+      # Backup Configuration
+      ENABLE_ROLLING_LOGS: "${ENABLE_ROLLING_LOGS:-true}"
+      
+      # Timezone
+      TZ: "${TZ:-UTC}"
+      
+    volumes:
+      - mc_data:/data
+      - mc_logs:/data/logs
+      # Uncomment the following line to mount a local plugins directory
+      # - ./plugins:/data/plugins
+      # Uncomment the following line to mount a local world
+      # - ./world:/data/world
+      
+    stdin_open: true
+    tty: true
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "mc-health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+volumes:
+  mc_data:
+    name: "${COMPOSE_PROJECT_NAME:-mc-paper-latest}_data"
+  mc_logs:
+    name: "${COMPOSE_PROJECT_NAME:-mc-paper-latest}_logs"
+
+networks:
+  default:
+    name: "${COMPOSE_PROJECT_NAME:-mc-paper-latest}_network"
